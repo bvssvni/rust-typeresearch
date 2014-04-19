@@ -1,17 +1,21 @@
+//! Logic for state machine.
 
-//! A different way of thinking about states.
-//!
-//! All objects are stored in a state.
-
-use HashMap = collections::HashMap;
+use state::State;
+use state::UpdateDelta;
 
 pub type UpdateFunction<T, D> = fn (obj: &mut T, delta: &D);
+
+/// A unique identifier for object.
+pub struct ObjectId(uint);
+
+/// A unique identifier for state.
+pub struct StateId(uint);
 
 /// Keeps track of the current state of objects.
 /// Also keeps an update function per state.
 /// This is because otherwise all states require same logic.
 pub struct StateMachine<Object, Delta> {
-    current: State<CurrentState<Object>>,
+    current: State<StateId>,
     states: State<State<Object>>,
     update_functions: State<UpdateFunction<Object, Delta>>
 }
@@ -20,7 +24,7 @@ impl<T, D> StateMachine<T, D> {
     /// Adds a new state.
     pub fn add_state(
             &mut self, 
-            state_id: uint,
+            StateId(state_id): StateId,
             state: State<T>, 
             update: Option<UpdateFunction<T, D>>
     ) {
@@ -34,70 +38,29 @@ impl<T, D> StateMachine<T, D> {
     /// Adds a new object.
     pub fn add_object(
             &mut self,
-            state_id: uint,
-            obj_id: uint,
+            StateId(state_id): StateId,
+            ObjectId(obj_id): ObjectId,
             obj: T) {
-        self.current.objects.insert(obj_id, CurrentState { state: state_id });
+        self.current.objects.insert(obj_id, StateId(state_id));
         self.states.objects.get_mut(&state_id).objects.insert(obj_id, obj);
     }
 
     /// Returns the current value of object by looking up in correct state.
     #[inline(always)]
-    pub fn val<'a>(&'a self, obj: uint) -> &'a T {
-        let &CurrentState { state: state } = self.current.objects.get(&obj);
+    pub fn val<'a>(&'a self, ObjectId(obj): ObjectId) -> &'a T {
+        let &StateId(state) = self.current.objects.get(&obj);
         self.states.objects.get(&state).objects.get(&obj)
     }
 
     /// Returns the current `state_id` of an object.
-    pub fn state_id(&self, obj: uint) -> uint {
-        let &CurrentState { state: state } = self.current.objects.get(&obj);
-        state
+    pub fn state_id(&self, ObjectId(obj): ObjectId) -> StateId {
+        *self.current.objects.get(&obj)
     }
 
     /// Returns the current state of an object.
-    pub fn state<'a>(&'a self, obj: uint) -> &'a State<T> {
-        let &CurrentState { state: state } = self.current.objects.get(&obj);
+    pub fn state<'a>(&'a self, ObjectId(obj): ObjectId) -> &'a State<T> {
+        let &StateId(state) = self.current.objects.get(&obj);
         self.states.objects.get(&state)
-    }
-}
-
-/// Stores the current state of an object.
-struct CurrentState<Object> {
-    state: uint,
-}
-
-/// Contains objects.
-pub struct State<Object> {
-    objects: HashMap<uint, Object>,
-}
-
-impl<T> State<T> {
-    /// Moves an object from one state to another.
-    pub fn move_to(&mut self, to: &mut State<T>, obj: uint) {
-        let pop = self.objects.pop(&obj);
-        match pop {
-            None => {},
-            Some(val) => { to.objects.insert(obj, val); }
-        }
-    }
-}
-
-/// Updates on delta information.
-///
-/// For any type implementing this trait,
-/// there is a `State<T>` and `StateMachine<T>`
-/// which also implements this trait.
-pub trait UpdateDelta<D> {
-    /// Updates all the objects with delta information.
-    fn update(&mut self, delta: &D);
-}
-
-impl<T: UpdateDelta<D>, D>
-UpdateDelta<D> for State<T> {
-    fn update(&mut self, delta: &D) {
-        for (_, obj) in self.objects.mut_iter() {
-            obj.update(delta);
-        }
     }
 }
 
