@@ -31,6 +31,16 @@ impl<T, D> StateMachine<T, D> {
         }
     }
 
+    /// Adds a new object.
+    pub fn add_object(
+            &mut self,
+            state_id: uint,
+            obj_id: uint,
+            obj: T) {
+        self.current.objects.insert(obj_id, CurrentState { state: state_id });
+        self.states.objects.get_mut(&state_id).objects.insert(obj_id, obj);
+    }
+
     /// Returns the current value of object by looking up in correct state.
     #[inline(always)]
     pub fn val<'a>(&'a self, obj: uint) -> &'a T {
