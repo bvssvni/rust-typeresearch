@@ -53,6 +53,12 @@ impl<T, D> StateMachine<T, D> {
         let &CurrentState { state: state } = self.current.objects.get(&obj);
         state
     }
+
+    /// Returns the current state of an object.
+    pub fn state<'a>(&'a self, obj: uint) -> &'a State<T> {
+        let &CurrentState { state: state } = self.current.objects.get(&obj);
+        self.states.objects.get(&state)
+    }
 }
 
 /// Stores the current state of an object.
