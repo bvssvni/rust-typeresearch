@@ -44,8 +44,14 @@ impl<T, D> StateMachine<T, D> {
     /// Returns the current value of object by looking up in correct state.
     #[inline(always)]
     pub fn val<'a>(&'a self, obj: uint) -> &'a T {
-        let &CurrentState{ state: state } = self.current.objects.get(&obj);
+        let &CurrentState { state: state } = self.current.objects.get(&obj);
         self.states.objects.get(&state).objects.get(&obj)
+    }
+
+    /// Returns the current `state_id` of an object.
+    pub fn state_id(&self, obj: uint) -> uint {
+        let &CurrentState { state: state } = self.current.objects.get(&obj);
+        state
     }
 }
 
