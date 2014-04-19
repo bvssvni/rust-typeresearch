@@ -24,6 +24,18 @@ impl<T> State<T> {
             Some(val) => { to.objects.insert(obj, val); }
         }
     }
+
+    /// Returns a readonly pointer to object.
+    #[inline(always)]
+    pub fn get<'a>(&'a self, obj: uint) -> &'a T {
+        self.objects.get(&obj)
+    }
+
+    /// Returns a mutable pointer to object.
+    #[inline(always)]
+    pub fn get_mut<'a>(&'a mut self, obj: uint) -> &'a mut T {
+        self.objects.get_mut(&obj)
+    }
 }
 
 /// Updates on delta information.
