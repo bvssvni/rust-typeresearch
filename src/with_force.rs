@@ -29,6 +29,7 @@ impl UpdateDelta<DeltaTime> for WithForce {
 }
 
 impl DynamicalProperties for WithForce {
+    #[inline(always)]
     fn get_vec3<'a>(&'a self, prop: Property) -> Option<&'a [f64, ..3]> {
         match prop {
             Position => Some(&self.pos),
@@ -38,6 +39,7 @@ impl DynamicalProperties for WithForce {
         }
     }
 
+    #[inline(always)]
     fn get_mut_vec3<'a>(&'a mut self, prop: Property) -> Option<&'a mut [f64, ..3]> {
         match prop {
             Position => Some(&mut self.pos),
@@ -47,6 +49,7 @@ impl DynamicalProperties for WithForce {
         }
     }
 
+    #[inline(always)]
     fn get_f64(&self, prop: Property) -> Option<f64> {
         match prop {
             InvMass => Some(self.inv_mass),
@@ -54,6 +57,7 @@ impl DynamicalProperties for WithForce {
         }
     }
 
+    #[inline(always)]
     fn get_mut_f64<'a>(&'a mut self, prop: Property) -> Option<&'a mut f64> {
         match prop {
             InvMass => Some(&mut self.inv_mass),

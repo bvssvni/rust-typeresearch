@@ -16,6 +16,7 @@ pub struct NoForce {
 }
 
 impl DynamicalProperties for NoForce {
+    #[inline(always)]
     fn get_vec3<'a>(&'a self, prop: Property) -> Option<&'a [f64, ..3]> {
         match prop {
             Position => Some(&self.pos),
@@ -24,6 +25,7 @@ impl DynamicalProperties for NoForce {
         }
     }
 
+    #[inline(always)]
     fn get_mut_vec3<'a>(&'a mut self, prop: Property) -> Option<&'a mut [f64, ..3]> {
         match prop {
             Position => Some(&mut self.pos),
@@ -32,10 +34,12 @@ impl DynamicalProperties for NoForce {
         }
     }
 
+    #[inline(always)]
     fn get_f64(&self, _prop: Property) -> Option<f64> {
         None
     }
 
+    #[inline(always)]
     fn get_mut_f64<'a>(&'a mut self, _prop: Property) -> Option<&'a mut f64> {
         None
     }
