@@ -17,12 +17,19 @@ pub struct State<Object> {
 
 impl<T> State<T> {
     /// Moves an object from one state to another.
+    #[inline(always)]
     pub fn move_to(&mut self, to: &mut State<T>, obj: uint) {
         let pop = self.objects.pop(&obj);
         match pop {
             None => {},
             Some(val) => { to.objects.insert(obj, val); }
         }
+    }
+
+    /// Removes object from state.
+    #[inline(always)]
+    pub fn pop(&mut self, obj: uint) -> Option<T> {
+        self.objects.pop(&obj)
     }
 
     /// Returns a readonly pointer to object.
