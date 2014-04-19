@@ -5,13 +5,32 @@
 
 use HashMap = collections::HashMap;
 
+pub type UpdateFunction<T, D> = fn (obj: &mut T, delta: &D);
+
 /// Keeps track of the current state of objects.
-pub struct StateMachine<Object> {
+/// Also keeps an update function per state.
+/// This is because otherwise all states require same logic.
+pub struct StateMachine<Object, Delta> {
     current: State<CurrentState<Object>>,
     states: State<State<Object>>,
+    update_functions: State<UpdateFunction<Object, Delta>>
 }
 
-impl<T> StateMachine<T> {
+impl<T, D> StateMachine<T, D> {
+    /// Adds a new state.
+    pub fn add_state(
+            &mut self, 
+            state_id: uint,
+            state: State<T>, 
+            update: Option<UpdateFunction<T, D>>
+    ) {
+        self.states.objects.insert(state_id, state);
+        match update {
+            None => {},
+            Some(fun) => { self.update_functions.objects.insert(state_id, fun); }
+        }
+    }
+
     /// Returns the current value of object by looking up in correct state.
     #[inline(always)]
     pub fn val<'a>(&'a self, obj: uint) -> &'a T {
@@ -61,10 +80,17 @@ UpdateDelta<D> for State<T> {
 }
 
 impl<T: UpdateDelta<D>, D>
-UpdateDelta<D> for StateMachine<T> {
+UpdateDelta<D> for StateMachine<T, D> {
     fn update(&mut self, delta: &D) {
-        for (_, state) in self.states.objects.mut_iter() {
-            state.update(delta);
+        for (id_state, state) in self.states.objects.mut_iter() {
+            match self.update_functions.objects.find(id_state) {
+                    None => {},
+                    Some(fun) => {
+                        for (_, obj) in state.objects.mut_iter() {
+                            (*fun)(obj, delta);
+                        }
+                    }
+            }
         }
     }
 }
