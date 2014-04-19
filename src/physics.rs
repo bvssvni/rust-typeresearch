@@ -9,6 +9,9 @@ pub struct DeltaTime(f64);
 pub type Position = [f64, ..3];
 pub type Velocity = [f64, ..3];
 pub type Acceleration = [f64, ..3];
+pub type Force = [f64, ..3];
+pub type Mass = f64;
+pub type InvMass = f64;
 
 /// Object in motion under no force.
 pub struct NoForce {
@@ -46,4 +49,27 @@ impl UpdateDelta<DeltaTime> for WithAcceleration {
         }
     }
 }
+
+/// Moves with force.
+pub struct WithForce {
+    /// The position.
+    pub pos: Position,
+    /// The velocity.
+    pub vel: Velocity,
+    /// The force.
+    pub force: Force,
+    /// The inverse mass.
+    pub inv_mass: InvMass,
+}
+
+impl UpdateDelta<DeltaTime> for WithForce {
+    fn update(&mut self, &DeltaTime(dt): &DeltaTime) {
+        for i in range(0u, 3) {
+            let acc = self.force[i] * self.inv_mass;
+            let vel_next = self.vel[i] + acc * dt;
+            self.pos[i] += 0.5 * dt * (self.vel[i] + vel_next);
+        }
+    }
+}
+
 
