@@ -62,6 +62,16 @@ impl<T, D> StateMachine<T, D> {
         let &StateId(state) = self.current.objects.get(&obj);
         self.states.objects.get(&state)
     }
+    
+    /// Moves an object to a new state.
+    pub fn move_to(&mut self, StateId(to): StateId, ObjectId(obj): ObjectId) {
+        let &StateId(state) = self.current.objects.get(&obj);
+        let pop = self.states.objects.get_mut(&state).objects.pop(&obj);
+        match pop {
+            None => {},
+            Some(val) => { self.states.objects.get_mut(&to).objects.insert(obj, val); }
+        }
+    }
 }
 
 impl<T: UpdateDelta<D>, D>
