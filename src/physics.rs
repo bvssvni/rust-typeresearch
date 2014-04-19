@@ -13,6 +13,14 @@ pub type Force = [f64, ..3];
 pub type Mass = f64;
 pub type InvMass = f64;
 
+/// Gets the position.
+pub trait PositionProperty {
+    /// Get a readonly position.
+    fn pos<'a>(&'a self) -> &'a Position;
+    /// Get a mutable position.
+    fn pos_mut<'a>(&'a mut self) -> &'a mut Position;
+}
+
 /// Object in motion under no force.
 pub struct NoForce {
     /// The position of object.
@@ -27,6 +35,18 @@ impl UpdateDelta<DeltaTime> for NoForce {
         for i in range(0u, 3) {
             self.pos[i] += self.vel[i] * dt;
         }
+    }
+}
+
+impl PositionProperty for NoForce {
+    #[inline(always)]
+    fn pos<'a>(&'a self) -> &'a Position {
+        &self.pos
+    }
+
+    #[inline(always)]
+    fn pos_mut<'a>(&'a mut self) -> &'a mut Position {
+        &mut self.pos
     }
 }
 
@@ -47,6 +67,16 @@ impl UpdateDelta<DeltaTime> for WithAcceleration {
             let vel_next = self.vel[i] + self.acc[i] * dt;
             self.pos[i] += 0.5 * dt * (self.vel[i] + vel_next);
         }
+    }
+}
+
+impl PositionProperty for WithAcceleration {
+    fn pos<'a>(&'a self) -> &'a Position {
+        &self.pos
+    }
+
+    fn pos_mut<'a>(&'a mut self) -> &'a mut Position {
+        &mut self.pos
     }
 }
 
@@ -72,4 +102,13 @@ impl UpdateDelta<DeltaTime> for WithForce {
     }
 }
 
+impl PositionProperty for WithForce {
+    fn pos<'a>(&'a self) -> &'a Position {
+        &self.pos
+    }
+
+    fn pos_mut<'a>(&'a mut self) -> &'a mut Position {
+        &mut self.pos
+    }
+}
 
