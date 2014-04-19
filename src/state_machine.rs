@@ -45,11 +45,18 @@ impl<T, D> StateMachine<T, D> {
         self.states.objects.get_mut(&state_id).objects.insert(obj_id, obj);
     }
 
-    /// Returns the current value of object by looking up in correct state.
+    /// Returns a readonly pointer to object.
     #[inline(always)]
-    pub fn val<'a>(&'a self, ObjectId(obj): ObjectId) -> &'a T {
+    pub fn get<'a>(&'a self, ObjectId(obj): ObjectId) -> &'a T {
         let &StateId(state) = self.current.objects.get(&obj);
         self.states.objects.get(&state).objects.get(&obj)
+    }
+
+    /// Returns a mutable pointer to object.
+    #[inline(always)]
+    pub fn get_mut<'a>(&'a mut self, ObjectId(obj): ObjectId) -> &'a mut T {
+        let &StateId(state) = self.current.objects.get(&obj);
+        self.states.objects.get_mut(&state).objects.get_mut(&obj)
     }
 
     /// Returns the current `state_id` of an object.
