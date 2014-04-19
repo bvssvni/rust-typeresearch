@@ -72,6 +72,12 @@ impl<T, D> StateMachine<T, D> {
             Some(val) => { self.states.objects.get_mut(&to).objects.insert(obj, val); }
         }
     }
+
+    /// Removes an object from state machine.
+    pub fn pop(&mut self, ObjectId(obj): ObjectId) -> Option<T> {
+        let &StateId(state) = self.current.objects.get(&obj);
+        self.states.objects.get_mut(&state).objects.pop(&obj)
+    }
 }
 
 impl<T: UpdateDelta<D>, D>
