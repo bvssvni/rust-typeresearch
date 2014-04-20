@@ -22,15 +22,16 @@ pub enum Shape<'a, Fl=f64> {
     Rect(&'a [Fl, ..4]),
     /// Round rectangle [x, y, w, h, radius].
     RoundRect(&'a [Fl, ..5]),
-    /// Ellipse.
+    /// Ellipse [x, y, w, h].
     Ellipse(&'a [Fl, ..4]),
-    /// Circle.
+    /// Circle [x, y, radius].
     Circle(&'a [Fl, ..3]),
-    /// Triangle.
+    /// Triangle [x1, y1, x2, y2, x3, y2].
     Triangle(&'a [Fl, ..6]),
-    /// Closed polygon.
+    /// Closed polygon [x1, y1, ...].
     Polygon(&'a [Fl]),
     /// Catmull B-rom spline interpolated closed curve.
+    /// [x1, y1, ...]
     Catmull(&'a [Fl]),
     /// Quadratic Bezier interpolated closed curve.
     /// Intersects the middle between each line.
